@@ -10,6 +10,7 @@ var app = express();
 
 app.use(bodyParser.json());
 
+// post a todo
 app.post('/todos', (req, res) => {
   //console.log(req.body);
   var todo = new Todo({
@@ -22,6 +23,15 @@ app.post('/todos', (req, res) => {
     res.status(400).send(err);
   });
 });
+
+// get all the todos
+app.get('/todos', (req, res) => {
+  Todo.find().then((todos) => {
+    res.send({todos});
+  }, (err) => {
+    res.status(400).send(err);
+  })
+})
 
 
 app.listen(3000, () => {
