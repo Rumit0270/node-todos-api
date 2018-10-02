@@ -5,6 +5,7 @@ const express = require('express');
 // bodyParser is used to convert JSON in JS object
 const  bodyParser = require('body-parser');
 const {ObjectID} = require('mongodb');
+const bcrypt = require('bcryptjs');
 
 var {mongoose} = require('./db/mongoose');
 var {Todo} = require('./models/todo');
@@ -107,6 +108,7 @@ app.patch('/todos/:id', (req,res) => {
 });
 
 //POST /users
+//signup
 app.post('/users', (req,res) => {
 
   var body = _.pick(req.body, ['email', 'password']);
@@ -128,6 +130,35 @@ app.get('/users/me', authenticate, (req, res) => {
   res.send(req.user);
 });
 
+
+//POST /users/login
+app.post('/users/login',  (req, res) =>  {
+  let email = req.body.email;
+  let password = req.body.password;
+
+
+  User.findByCredintials(email, password).then((user) => {
+    return user.generateAuthToken().then((token) => {
+        res.header('x-auth', token).send(user);
+    });
+
+  }).catch((err) => {
+    res.status(400).send();
+  });
+
+  // User.findOne({email}).then((user) => {
+  //   bcrypt.compare(password, user.password, (err, result) => {
+  //     if(result) {
+  //       res.header('x-auth', user.tokens[0].token).send(user);
+  //     } else {
+  //         res.status(401).send();
+  //     }
+  //   })
+  // }).catch((err) => {
+  //   res.status(400).send();
+  // });
+
+});
 
 
 app.listen(port, () => {
